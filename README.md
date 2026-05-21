@@ -11,4 +11,5 @@ The main charging station safely docks all eight buttons using magnetic pogo-pin
 
 The software methodology integrates embedded firmware, networking, and a full-stack interface to translate user inputs into actionable gameplay. The physical buttons wirelessly transmit data to the Raspberry Pi using a randomized transmit strategy across radio pipes to prevent signal collisions, while the Pi simultaneously captures multi-touch data from the touchpad via Bluetooth and streams everything to a client laptop over WebSockets. 
 <img width="15073" height="175" alt="image" src="https://github.com/user-attachments/assets/ceb3f495-2967-420d-b151-5438ca053eaf" />
+<img width="1280" height="720" alt="image" src="https://github.com/user-attachments/assets/6b5d44cf-e08f-44c8-b5bc-5440dcf1140b" />
 
