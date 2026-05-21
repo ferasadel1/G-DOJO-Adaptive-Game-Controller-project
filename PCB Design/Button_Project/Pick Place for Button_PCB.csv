@@ -1,0 +1,51 @@
+Altium Designer Pick and Place Locations
+C:\Users\Public\Documents\Altium\GP_Button_Project\Project Outputs for GP_Button_Project\Pick Place for Button_PCB.csv
+
+========================================================================================================================
+File Design Information:
+
+Date:       16/03/26
+Time:       01:08
+Revision:   Not in VersionControl
+Variant:    No variations
+Units used: mm
+
+"Designator","Comment","Layer","Footprint","Center-X(mm)","Center-Y(mm)","Rotation","Description"
+"SW1","XKB5858-Z-E","TopLayer","SW-TH_XKB5858-Z-E","8.0010","36.0565","0",""
+"R11","RC0603FR-07100KL","BottomLayer","RESC1607X60N","9.2710","7.7653","270","100 kOhms ±1% 0.1W, 1/10W Chip Resistor 0603 (1608 Metric) Moisture Resistant Thick Film"
+"R10","RC0603FR-071K5L","BottomLayer","RESC1607X60N","7.2660","2.7940","180","1.5 kOhms ±1% 0.1W, 1/10W Chip Resistor 0603 (1608 Metric) Moisture Resistant Thick Film"
+"R9","RC0603FR-0722KL","BottomLayer","RESC1607X60N","5.3336","13.9700","0","22 kOhms ±1% 0.1W, 1/10W Chip Resistor 0603 (1608 Metric) Moisture Resistant Thick Film"
+"Q1","SS8550_C8542","BottomLayer","SOT-23-3_L2.9-W1.3-P1.90-LS2.4-BR","15.6371","3.6830","180",""
+"DR","LTST-C190KRKT","BottomLayer","LEDC1608X35N","11.6840","2.7940","0","Red 631nm LED Indication - Discrete 2V 0603 (1608 Metric)"
+"DW","DW01A_C2927799","TopLayer","SOT-23-6_L2.9-W1.6-P0.95-LS2.8-BL","20.4470","6.2290","180",""
+"ISP","Header-Male-2.54_2x3","TopLayer","HDR-TH_6P-P2.54-V-M-R2-C3-S2.54-1","5.3340","28.1940","90",""
+"R1","RC0603FR-07100KL","BottomLayer","RESC1607X60N","30.7340","13.3533","90","100 kOhms ±1% 0.1W, 1/10W Chip Resistor 0603 (1608 Metric) Moisture Resistant Thick Film"
+"C11","CL10B104KB8NNNC","TopLayer","CAPC1608X90N","9.6340","18.4150","0","0.1 µF ±10% 50V Ceramic Capacitor X7R 0603 (1608 Metric)"
+"C10","CL21A106KPFNNNE","TopLayer","CAPC2012X135N","9.6530","16.2560","0","10 µF ±10% 10V Ceramic Capacitor X5R 0805 (2012 Metric)"
+"C9","CL10B104KB8NNNC","TopLayer","CAPC1608X90N","22.2250","20.2110","90","0.1 µF ±10% 50V Ceramic Capacitor X7R 0603 (1608 Metric)"
+"C8","CL10B104KB8NNNC","TopLayer","CAPC1608X90N","23.7490","20.2110","90","0.1 µF ±10% 50V Ceramic Capacitor X7R 0603 (1608 Metric)"
+"R7","SMD-RES-2.7K-1%-1/10W(0603)","TopLayer","R0603","16.2560","5.9690","180","2.7 kOhms ±1% 0.1W, 1/10W Chip Resistor 0603 (1608 Metric) Moisture Resistant Thick Film"
+"C6","CL21A106KPFNNNE","TopLayer","CAPC2012X135N","6.2230","11.1760","0","10 µF ±10% 10V Ceramic Capacitor X5R 0805 (2012 Metric)"
+"C1","CL10B104KB8NNNC","TopLayer","CAPC1608X90N","17.7800","5.9690","90","0.1 µF ±10% 50V Ceramic Capacitor X7R 0603 (1608 Metric)"
+"USBC","GT-USB-7055BB","BottomLayer","USB-C-TH_GT-USB-7055BB","21.2130","35.1680","180",""
+"UART","CH340C","TopLayer","SOIC127P600X180-16N","3.8100","17.5260","0","USB to serial chip CH340"
+"R8","RC0603FR-07100KL","BottomLayer","RESC1607X60N","25.9080","5.2070","180","100 kOhms ±1% 0.1W, 1/10W Chip Resistor 0603 (1608 Metric) Moisture Resistant Thick Film"
+"R6","0402WGF5101TCE","BottomLayer","RESC1005X40N","14.9860","34.6710","270","5.1K Ohm 1/16W Thick Film Resistor 0402 Chip - Surface Mount"
+"R5","0402WGF5101TCE","BottomLayer","RESC1005X40N","28.0130","35.1790","180","5.1K Ohm 1/16W Thick Film Resistor 0402 Chip - Surface Mount"
+"MC","YZ92015035T-04025-01","BottomLayer","CONN-SMD_4P-P2.50_YZ92015035T-04025-01","17.0179","16.8910","90",""
+"C7","CL21A106KPFNNNE","TopLayer","CAPC2012X135N","26.1620","20.1030","90","10 µF ±10% 10V Ceramic Capacitor X5R 0805 (2012 Metric)"
+"VR","TPS78233DDCT","TopLayer","SOT95P280X110-5N","12.8270","11.8110","0","150-mA, nano-IQ, low-dropout voltage regulator with enable from -40°C to +125°C"
+"R4","RC0603FR-071K1L","TopLayer","RESC1608X55N","29.5910","8.0010","0","1.1 kOhms ±1% 0.1W, 1/10W Chip Resistor 0603 (1608 Metric) Moisture Resistant Thick Film"
+"R3","RC0603FR-071K1L","TopLayer","RESC1608X55N","24.1300","4.6990","180","1.1 kOhms ±1% 0.1W, 1/10W Chip Resistor 0603 (1608 Metric) Moisture Resistant Thick Film"
+"R2","RC0603FR-0710KL","TopLayer","RESC1607X60N","30.2530","19.9390","0","10 kOhms ±1% 0.1W, 1/10W Chip Resistor 0603 (1608 Metric) Moisture Resistant Thick Film"
+"PF","MF-MSMF110-2","TopLayer","FUSER_MF-MSMF110-2","23.6220","12.7680","90","Polymeric PTC Resettable Fuse 6V 1.1 A Ih Surface Mount 1812 (4532 Metric), Concave"
+"MOSFET","8205A","TopLayer","SOT95P285X140-6N","13.5890","5.9690","90","Mosfet Array 20V 5A 830mW (Ta) Surface Mount SOT-23-6"
+"MCU","ATTINY84A-SSUR","TopLayer","SOIC127P600X175-14N","17.3990","28.3972","270","AVR AVR® ATtiny Microcontroller IC 8-Bit 20MHz 8KB (4K x 16) FLASH 14-SOIC"
+"HFS","TMAG5231B1DQDBZR","TopLayer","SOT95P237X112-3N","17.5260","17.2720","0","Low-power, low-voltage (1.65 V to 5.5 V) Hall-effect switch"
+"FC","2.54-2*4","TopLayer","HDR-TH_8P-P2.54-V-F-R2-C4-S2.54","28.9560","29.0830","180",""
+"CM","TP4056","TopLayer","SOP127P600X175-9N","29.5910","13.2080","90","Complete single cell Li-Ion battery with a constant current / constant voltage linear charger"
+"C5","CL21A106KPFNNNE","TopLayer","CAPC2012X135N","29.5900","6.0960","0","10 µF ±10% 10V Ceramic Capacitor X5R 0805 (2012 Metric)"
+"C4","CL10B104KB8NNNC","TopLayer","CAPC1608X90N","11.9380","21.1000","270","0.1 µF ±10% 50V Ceramic Capacitor X7R 0603 (1608 Metric)"
+"C3","CL10B104KB8NNNC","TopLayer","CAPC1608X90N","14.0970","21.1000","90","0.1 µF ±10% 50V Ceramic Capacitor X7R 0603 (1608 Metric)"
+"C2","CL10B104KB8NNNC","TopLayer","CAPC1608X90N","9.4160","9.6520","180","0.1 µF ±10% 50V Ceramic Capacitor X7R 0603 (1608 Metric)"
+"BC","B2B-PH-K-S(LF)(SN)","TopLayer","JST_B2B-PH-K-S(LF)(SN)","4.9950","6.2230","90","Connector Header Through Hole 2 position 0.079 (2.00mm)"
