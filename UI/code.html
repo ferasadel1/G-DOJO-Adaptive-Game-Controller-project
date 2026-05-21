@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>G-DOJO | Controller Mapping</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <!-- Fabric.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#4ade80", 
+                        "primary-container": "#22c55e", 
+                        "secondary": "#ffffff", 
+                        "background": "#000000", 
+                        "surface": "#0a0a0a", 
+                        "error": "#ef4444",
+                        neonGreen: '#4ade80', 
+                        glassBg: 'rgba(5, 5, 5, 0.90)',
+                    },
+                    boxShadow: {
+                        'neon-green': '0 0 15px rgba(74, 222, 128, 0.4)',
+                    },
+                    fontFamily: { 
+                        "headline": ["'Orbitron'", "sans-serif"], 
+                        "body": ["Lora", "serif"], 
+                        "label": ["Lora", "serif"] 
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+        ::-webkit-scrollbar-thumb { background: rgba(74, 222, 128, 0.3); border-radius: 6px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(74, 222, 128, 0.6); }
+
+        .canvas-grid { background-image: radial-gradient(rgba(74, 222, 128, 0.1) 1px, transparent 1px); background-size: 40px 40px; }
+        
+        select.ps-dropdown { background: rgba(0, 0, 0, 0.8); border: 1px solid rgba(74, 222, 128, 0.3); color: #4ade80; font-family: 'Lora', serif; font-size: 15px; font-weight: 600; padding: 6px 10px; border-radius: 4px; outline: none; transition: border 0.2s; cursor: pointer; }
+        select.ps-dropdown:focus { border-color: #4ade80; }
+        select.ps-dropdown option { background: #0a0a0a; color: #fff; }
+        select.ps-dropdown option:disabled { color: #444; font-style: italic; }
+        
+        .glass-effect { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(74, 222, 128, 0.15); }
+        
+        .controller-grid-btn { cursor: pointer; transition: all 0.2s ease; border-radius: 8px; }
+        .controller-grid-btn:not(.pointer-events-none):hover { background: rgba(74, 222, 128, 0.05); transform: translateY(-3px); border-color: rgba(74, 222, 128, 0.3); }
+        .controller-grid-btn.active { background: rgba(74, 222, 128, 0.1); border-color: #4ade80; box-shadow: 0 0 15px rgba(74, 222, 128, 0.2); transform: translateY(-3px); }
+
+        .text-outline-green {
+            color: transparent;
+            -webkit-text-stroke: 2px #4ade80;
+            text-shadow: 0 0 20px rgba(74, 222, 128, 0.5);
+        }
+        .font-headline { letter-spacing: 0.05em; }
+
+        /* Custom shapes for floating labels */
+        .shape-triangle { width: 24px; height: 20px; clip-path: polygon(50% 0%, 0% 100%, 100% 100%); background-color: #000; }
+        .shape-square { width: 20px; height: 20px; border: 4px solid #000; border-radius: 2px; }
+        .shape-circle { width: 22px; height: 22px; border: 4px solid #000; border-radius: 50%; }
+    </style>
+</head>
+<body class="bg-background text-zinc-200 font-body overflow-hidden">
+
+<!-- ================== 1. LANDING PROFILE VIEW ================== -->
+<div id="view-landing" class="fixed inset-0 z-[100] bg-background flex items-center justify-center transition-opacity duration-300">
+    <div class="absolute inset-0 canvas-grid opacity-30"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent"></div>
+    
+    <div class="relative z-10 glass-effect bg-black/90 p-10 rounded-2xl w-full max-w-[500px] shadow-[0_0_50px_rgba(74,222,128,0.1)] flex flex-col items-center">
+        <span class="material-symbols-outlined text-6xl text-primary mb-3">videogame_asset</span>
+        <h1 class="text-6xl font-headline font-black mb-2 tracking-wider text-outline-green italic">G-DOJO</h1>
+        <p class="text-[16px] text-primary/80 mb-8 font-body italic tracking-wider">Player Profile Configuration</p>
+
+        <div class="w-full flex flex-col gap-4 mb-8">
+            <input type="text" id="new-profile-name" placeholder="Enter Player Name..." class="w-full bg-black border-2 border-primary/30 rounded-lg px-6 py-5 text-xl text-white font-body outline-none focus:border-primary focus:shadow-[0_0_15px_rgba(74,222,128,0.3)] transition-all placeholder:text-zinc-700">
+            <button id="btn-create-profile" class="w-full bg-primary text-black px-6 py-5 rounded-lg font-headline font-bold text-xl hover:bg-primary-container transition-all shadow-neon-green active:scale-95 tracking-widest italic">ENTER</button>
+        </div>
+
+        <div class="w-full">
+            <div class="flex items-center gap-2 mb-3 pb-2 border-b border-primary/20">
+                <span class="material-symbols-outlined text-primary/60 text-lg">group</span>
+                <h3 class="text-[15px] text-primary/80 font-headline font-bold tracking-widest">Saved Profiles</h3>
+            </div>
+            <div id="profile-list" class="flex flex-col gap-2 max-h-40 overflow-y-auto pr-2"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ================== 2. MAIN CANVAS VIEW ================== -->
+<div id="view-canvas" class="hidden w-full h-screen relative transition-opacity duration-300">
+    
+    <header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-8 py-5 bg-black/90 backdrop-blur-xl shadow-lg border-b border-primary/20">
+        <div class="flex items-center gap-8">
+            <div class="text-3xl text-primary font-headline font-black tracking-widest italic">G-DOJO</div>
+            <div class="w-px h-8 bg-primary/20 hidden md:block"></div>
+            <nav class="hidden md:flex items-center gap-6">
+                <button id="btn-rect" class="flex items-center gap-2 text-primary bg-primary/10 px-5 py-3 rounded-lg font-body font-semibold text-[17px] transition-all hover:bg-primary/20 border border-primary/30 shadow-[0_0_10px_rgba(74,222,128,0.1)]">
+                    <span class="material-symbols-outlined text-xl">square</span> Rectangle
+                </button>
+                <button id="btn-circle" class="flex items-center gap-2 text-zinc-400 hover:text-primary px-5 py-3 rounded-lg font-body font-semibold text-[17px] transition-all hover:bg-primary/5 border border-transparent">
+                    <span class="material-symbols-outlined text-xl">circle</span> Circle
+                </button>
+            </nav>
+        </div>
+        <div class="flex items-center gap-4">
+            <button id="btn-switch-profile" class="flex items-center gap-2 px-5 py-3 bg-black border border-primary/30 text-zinc-300 hover:text-primary transition-all font-body font-semibold text-[16px] rounded-lg group">
+                <span class="material-symbols-outlined text-[20px] group-hover:text-primary">account_circle</span> 
+                <span id="current-profile-display">Profile</span>
+            </button>
+            <button id="btn-clear" class="flex items-center gap-2 px-5 py-3 bg-black border border-error/30 text-error hover:bg-error/10 transition-all font-body font-semibold text-[16px] rounded-lg">
+                <span class="material-symbols-outlined text-[20px]">delete</span> Clear
+            </button>
+            <button id="btn-save" class="bg-primary text-black px-8 py-3 ml-2 font-headline font-bold text-lg shadow-neon-green transition-all hover:bg-primary-container active:scale-95 rounded-lg tracking-widest italic uppercase w-[180px] text-center">
+                Save
+            </button>
+        </div>
+    </header>
+
+    <main class="relative w-full h-screen bg-surface overflow-hidden">
+        <div class="absolute inset-0 z-0 opacity-60">
+            <div class="absolute inset-0 bg-gradient-to-b from-surface via-transparent to-surface"></div>
+        </div>
+        
+        <div class="relative z-10 w-full h-full pt-28 pr-[400px] flex items-center justify-center p-8" id="outer-container">
+            <div class="relative canvas-grid shadow-[0_0_50px_rgba(74,222,128,0.1)] border border-primary/20 rounded-xl" id="fabric-wrapper" style="background-color: #050505;">
+                <canvas id="touchpadCanvas"></canvas>
+                
+                <!-- PERFECTLY OVERLAID CANVAS -->
+                <canvas id="live-touch-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 25; pointer-events: none;"></canvas>
+                
+                <div id="labels-container" class="absolute inset-0 pointer-events-none z-20 overflow-hidden"></div>
+                
+                <div id="shape-context-menu" class="hidden absolute z-30 flex flex-col gap-1 bg-[#0a0a0a] backdrop-blur-md border border-primary/30 rounded-xl p-2 shadow-2xl transition-opacity duration-150 min-w-[140px]">
+                    <button id="ctx-edit-btn" class="flex items-center gap-3 p-3 px-4 text-zinc-300 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors font-body font-semibold text-[17px]">
+                        <span class="material-symbols-outlined text-[20px]">edit</span> Edit
+                    </button>
+                    <div class="h-px w-full bg-primary/20 my-1"></div>
+                    <button id="ctx-delete-btn" class="flex items-center gap-3 p-3 px-4 text-zinc-300 hover:text-error hover:bg-error/10 rounded-lg transition-colors font-body font-semibold text-[17px]">
+                        <span class="material-symbols-outlined text-[20px]">delete</span> Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <aside class="fixed right-0 top-0 h-full z-40 flex flex-col pt-28 w-[400px] bg-black/90 backdrop-blur-2xl border-l border-primary/20 shadow-[-10px_0_30px_rgba(0,0,0,0.8)]">
+        <div class="p-8 border-b border-primary/20 bg-primary/5">
+            <div class="flex justify-between items-center mb-1">
+                <h2 class="text-xl font-headline font-bold text-primary tracking-wide italic">Buttons Manager</h2>
+                <span id="connection-status" class="text-[12px] font-headline font-bold text-error bg-error/10 border border-error/20 px-3 py-1 rounded tracking-widest uppercase">Offline</span>
+            </div>
+        </div>
+        <div class="flex-1 overflow-y-auto py-6 px-6">
+            <div class="mb-5 flex items-center justify-between px-2 border-b border-primary/10 pb-3">
+                <span class="text-[14px] font-headline text-zinc-500 tracking-wider">Layer Stack</span>
+                <span id="layer-count" class="text-[14px] font-headline text-primary font-bold">0/5 Active</span>
+            </div>
+            <div id="layer-list" class="flex flex-col gap-4"></div>
+        </div>
+    </aside>
+</div>
+
+<!-- ================== 3. POPUP MODAL ================== -->
+<div class="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md hidden" id="modal-overlay">
+    <section class="glass-effect glassBg w-full max-w-3xl p-0 rounded-2xl shadow-[0_0_40px_rgba(74,222,128,0.15)] flex flex-col overflow-hidden border-t-4 border-t-primary">
+        <header class="w-full p-8 border-b border-primary/20 text-center bg-black/50">
+            <h2 class="text-primary text-3xl font-headline font-bold tracking-widest mb-3 italic">Region Configuration</h2>
+            <p class="text-zinc-400 text-[16px] font-body italic">Assign input mapping for selected region</p>
+        </header>
+        <div class="flex flex-col">
+            <div class="p-8 bg-[#050505]">
+                <div class="w-full">
+                    <div class="grid grid-cols-4 gap-6">
+                        <button data-value="X" class="controller-grid-btn flex items-center justify-center h-28 border-2 border-zinc-800 bg-black group active">
+                            <span class="text-[#60a5fa] font-body font-bold text-5xl group-hover:shadow-[0_0_15px_rgba(96,165,250,0.5)] transition-all">✕</span>
+                        </button>
+                        <button data-value="Circle" class="controller-grid-btn flex items-center justify-center h-28 border-2 border-zinc-800 bg-black group">
+                            <div class="w-14 h-14 rounded-full border-[4px] border-[#ef4444] group-hover:shadow-[0_0_15px_rgba(239,68,68,0.5)] transition-all"></div>
+                        </button>
+                        <button data-value="Triangle" class="controller-grid-btn flex items-center justify-center h-28 border-2 border-zinc-800 bg-black group">
+                            <div class="w-16 h-14 text-[#4ade80] group-hover:drop-shadow-[0_0_12px_rgba(74,222,128,0.8)] transition-all mb-2" style="clip-path: polygon(50% 0%, 0% 100%, 100% 100%); background: currentColor;"></div>
+                        </button>
+                        <button data-value="Square" class="controller-grid-btn flex items-center justify-center h-28 border-2 border-zinc-800 bg-black group">
+                            <div class="w-14 h-14 border-[4px] border-[#f472b6] group-hover:shadow-[0_0_15px_rgba(244,114,182,0.5)] transition-all"></div>
+                        </button>
+                        <button data-value="L1" class="controller-grid-btn flex items-center justify-center h-28 border-2 border-zinc-800 bg-black group">
+                            <span class="text-[#a78bfa] font-headline font-bold text-4xl group-hover:drop-shadow-[0_0_15px_rgba(167,139,250,0.8)] transition-all italic">L1</span>
+                        </button>
+                        <button data-value="R1" class="controller-grid-btn flex items-center justify-center h-28 border-2 border-zinc-800 bg-black group">
+                            <span class="text-[#fb923c] font-headline font-bold text-4xl group-hover:drop-shadow-[0_0_15px_rgba(251,146,60,0.8)] transition-all italic">R1</span>
+                        </button>
+                        <button data-value="L2" class="controller-grid-btn flex items-center justify-center h-28 border-2 border-zinc-800 bg-black group">
+                            <span class="text-[#2dd4bf] font-headline font-bold text-4xl group-hover:drop-shadow-[0_0_15px_rgba(45,212,191,0.8)] transition-all italic">L2</span>
+                        </button>
+                        <button data-value="R2" class="controller-grid-btn flex items-center justify-center h-28 border-2 border-zinc-800 bg-black group">
+                            <span class="text-[#facc15] font-headline font-bold text-4xl group-hover:drop-shadow-[0_0_15px_rgba(250,204,21,0.8)] transition-all italic">R2</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer class="w-full flex gap-5 p-8 border-t border-primary/20 bg-black">
+            <button id="modal-cancel-btn" class="flex-1 py-4 px-4 rounded-lg text-zinc-400 border border-zinc-700 hover:bg-zinc-900 transition-all font-headline text-lg tracking-widest">
+                Cancel
+            </button>
+            <button id="modal-save-btn" class="flex-[2] py-4 px-4 rounded-lg bg-primary text-black font-headline font-bold text-lg tracking-widest shadow-neon-green hover:bg-primary-container active:scale-95 transition-all italic">
+                Save Configuration
+            </button>
+        </footer>
+    </section>
+</div>
+
+<script>
+    // --- 1. CONFIG & APP STATE ---
+    const MAX_BUTTONS = 5;
+    const MIN_SPACING = 20; 
+    const MIN_REGION_SIZE = 60; 
+    const psButtons = ['Unassigned', 'X', 'Square', 'Circle', 'Triangle', 'L1', 'L2', 'R1', 'R2'];
+    
+    const PS_THEME = {
+        'X': { color: '#60a5fa', type: 'text', val: '✕' }, 
+        'Circle': { color: '#ef4444', type: 'shape', val: 'shape-circle' }, 
+        'Triangle': { color: '#4ade80', type: 'shape', val: 'shape-triangle' }, 
+        'Square': { color: '#f472b6', type: 'shape', val: 'shape-square' }, 
+        'L1': { color: '#a78bfa', type: 'text', val: 'L1' }, 
+        'L2': { color: '#2dd4bf', type: 'text', val: 'L2' }, 
+        'R1': { color: '#fb923c', type: 'text', val: 'R1' }, 
+        'R2': { color: '#facc15', type: 'text', val: 'R2' }, 
+        'Unassigned': { color: '#4ade80', type: 'text', val: '?' } 
+    };
+
+    let appProfiles = JSON.parse(localStorage.getItem('gdojo_profiles')) || {};
+    let currentUserProfile = null;
+    let shapeCounter = 1;
+    let currentEditingShape = null;
+
+    const viewLanding = document.getElementById('view-landing');
+    const viewCanvas = document.getElementById('view-canvas');
+    const profileListEl = document.getElementById('profile-list');
+    const inputNameEl = document.getElementById('new-profile-name');
+
+    fabric.Object.prototype.set({
+        transparentCorners: false,
+        cornerColor: '#0a0a0a',
+        cornerStrokeColor: '#4ade80',
+        borderColor: '#4ade80',
+        cornerSize: 14,
+        padding: 0,
+        cornerStyle: 'rect',
+        strokeWidth: 3,
+        borderScaleFactor: 2,
+        borderDashArray: [4, 4]
+    });
+
+    const canvasContainer = document.getElementById('fabric-wrapper');
+    const canvas = new fabric.Canvas('touchpadCanvas', { selection: false, allowTouchScrolling: false });
+
+    // =========================================================
+    // --- AUTO-CALIBRATION: LINUX EVDEV MATCHING --------------
+    // =========================================================
+    let hwMinX = -3678, hwMaxX = 3934;
+    let hwMinY = -2478, hwMaxY = 2587;
+
+    function matchTrackpadRatio() {
+        const wrapper = document.getElementById('outer-container');
+        if(!wrapper || viewCanvas.classList.contains('hidden')) return;
+
+        const hwWidth = Math.abs(hwMaxX - hwMinX) || 7612;
+        const hwHeight = Math.abs(hwMaxY - hwMinY) || 5065;
+        const targetRatio = hwWidth / hwHeight; 
+        
+        let maxWidth = wrapper.clientWidth;
+        let maxHeight = wrapper.clientHeight;
+        
+        let newWidth = maxWidth;
+        let newHeight = newWidth / targetRatio;
+        
+        if (newHeight > maxHeight) {
+            newHeight = maxHeight;
+            newWidth = newHeight * targetRatio;
+        }
+
+        canvasContainer.style.width = `${newWidth}px`;
+        canvasContainer.style.height = `${newHeight}px`;
+
+        canvas.setWidth(newWidth);
+        canvas.setHeight(newHeight);
+        
+        const liveCanvas = document.getElementById('live-touch-canvas');
+        liveCanvas.width = newWidth;
+        liveCanvas.height = newHeight;
+        
+        canvas.getObjects().forEach(enforceBoundaries); 
+        canvas.renderAll();
+    }
+
+    function getUsedMappings(excludeShapeId) {
+        return canvas.getObjects()
+            .filter(o => o.id !== excludeShapeId && o.ps_mapping !== 'Unassigned')
+            .map(o => o.ps_mapping);
+    }
+
+    // --- 2. PROFILE LOGIC & VIEWS ---
+        function renderProfileList() {
+        profileListEl.innerHTML = '';
+        const names = Object.keys(appProfiles);
+        
+        if (names.length === 0) {
+            profileListEl.innerHTML = '<p class="text-[15px] text-zinc-600 font-body italic py-2">No saved profiles yet.</p>';
+            return;
+        }
+
+        names.forEach(name => {
+            // Container for the row
+            const rowWrapper = document.createElement('div');
+            rowWrapper.className = "flex items-stretch justify-between w-full min-h-[60px] bg-black border border-primary/20 rounded-lg hover:bg-primary/5 hover:border-primary/50 transition-all text-zinc-300 group overflow-hidden";
+            
+            // Button 1: Load Profile
+            const loadBtn = document.createElement('button');
+            loadBtn.className = "flex-1 flex items-center justify-between px-4 outline-none";
+            loadBtn.innerHTML = `
+                <span class="font-headline tracking-widest text-[16px] group-hover:text-primary transition-colors">${name}</span> 
+                <span class="material-symbols-outlined text-[20px] text-zinc-600 group-hover:text-primary transition-colors">login</span>
+            `;
+            loadBtn.onclick = () => loadProfile(name);
+
+            // Button 2: Delete Profile
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = "flex items-center justify-center px-4 border-l border-primary/10 hover:bg-error/10 hover:text-error transition-all group/del";
+            deleteBtn.innerHTML = `
+                <span class="material-symbols-outlined text-[20px] text-zinc-600 group-hover/del:text-error transition-colors">delete</span>
+            `;
+            
+            // Click Event for Deletion
+            deleteBtn.onclick = async (e) => {
+                e.stopPropagation(); // Stop from triggering loadBtn
+                if (confirm(`Are you sure you want to delete the profile "${name}"?`)) {
+                    
+                    // 1. Instantly remove from UI and LocalStorage
+                    delete appProfiles[name];
+                    localStorage.setItem('gdojoprofiles', JSON.stringify(appProfiles));
+                    renderProfileList();
+
+                    // 2. Tell Node.js to remove it from PostgreSQL
+                    try {
+                        const response = await fetch('http://localhost:3000/api/delete-profile', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ profile_name: name })
+                        });
+                        
+                        if (!response.ok) {
+                            console.error("Backend refused to delete profile");
+                        } else {
+                            console.log(`Successfully deleted ${name} from DB`);
+                        }
+                    } catch (err) {
+                        console.error("Network error. Server might be offline:", err);
+                    }
+                }
+            };
+
+            // Append buttons to the row wrapper
+            rowWrapper.appendChild(loadBtn);
+            rowWrapper.appendChild(deleteBtn);
+            profileListEl.appendChild(rowWrapper);
+        });
+    }
+    document.getElementById('btn-create-profile').onclick = () => {
+        const name = inputNameEl.value.trim().toUpperCase();
+        if (!name) { alert("Please enter a player name."); return; }
+        if (!appProfiles[name]) appProfiles[name] = []; 
+        loadProfile(name);
+    };
+
+    document.getElementById('btn-switch-profile').onclick = () => {
+        saveCurrentProfile(); 
+        inputNameEl.value = '';
+        renderProfileList();
+        viewCanvas.classList.add('hidden');
+        viewLanding.classList.remove('hidden');
+    };
+
+    function loadProfile(name) {
+        currentUserProfile = name;
+        document.getElementById('current-profile-display').innerText = name;
+        viewLanding.classList.add('hidden'); viewCanvas.classList.remove('hidden');
+        
+        matchTrackpadRatio(); 
+        canvas.clear(); shapeCounter = 1;
+        
+        const savedData = appProfiles[name] || [];
+        
+        let highestIdNum = 0;
+        savedData.forEach(p => {
+            let shape;
+            const props = { left: p.left, top: p.top, scaleX: p.scaleX, scaleY: p.scaleY };
+            
+            if (p.type === 'rect') shape = new fabric.Rect({ ...props, width: p.width, height: p.height, rx: 0, ry: 0 });
+            else shape = new fabric.Circle({ ...props, radius: p.radius });
+            
+            shape.setControlsVisibility({ mtr: false, mt: true, mb: true, ml: true, mr: true, tl: true, tr: true, bl: true, br: true }); 
+            shape.set({ id: p.id, shapeType: p.type, ps_mapping: p.ps_mapping });
+            shape._lastGoodState = { left: p.left, top: p.top, scaleX: p.scaleX, scaleY: p.scaleY }; 
+            applyThemeToShape(shape); canvas.add(shape); 
+            
+            const numMatch = p.id.match(/\d+/);
+            if(numMatch) {
+                const num = parseInt(numMatch[0]);
+                if(num > highestIdNum) highestIdNum = num;
+            }
+        });
+        
+        shapeCounter = highestIdNum + 1;
+        updateSidebar();
+        document.getElementById('shape-context-menu').classList.add('hidden');
+    }
+
+    function saveCurrentProfile() {
+        if (!currentUserProfile) return;
+        const data = canvas.getObjects().map(obj => ({
+            id: obj.id, type: obj.shapeType, left: obj.left, top: obj.top,
+            width: obj.width, height: obj.height, radius: obj.radius,
+            scaleX: obj.scaleX, scaleY: obj.scaleY, ps_mapping: obj.ps_mapping
+        }));
+        appProfiles[currentUserProfile] = data;
+        localStorage.setItem('gdojo_profiles', JSON.stringify(appProfiles));
+    }
+    renderProfileList();
+
+    // --- DB SAVE BUTTON ---
+    document.getElementById('btn-save').onclick = async () => {
+        saveCurrentProfile(); // Save to local storage first
+        
+        const btn = document.getElementById('btn-save');
+        const originalText = btn.innerText;
+        btn.innerText = "SAVING...";
+        
+        const currentData = appProfiles[currentUserProfile] || [];
+        
+        try {
+            // Sends the API POST request to your local Node.js server
+            const response = await fetch('http://localhost:3000/api/save-regions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    profile_name: currentUserProfile,
+                    regions: currentData
+                })
+            });
+
+            if (response.ok) {
+                btn.innerText = "SAVED!";
+                btn.classList.add('bg-primary-container');
+                btn.classList.replace('text-black', 'text-white');
+            } else {
+                btn.innerText = "DB ERROR";
+                btn.classList.add('bg-error');
+                btn.classList.replace('text-black', 'text-white');
+            }
+        } catch (err) {
+            console.error("Fetch error:", err);
+            btn.innerText = "NETWORK ERR";
+            btn.classList.add('bg-error');
+            btn.classList.replace('text-black', 'text-white');
+        }
+
+        // Reset button after 2 seconds
+        setTimeout(() => {
+            btn.innerText = "SAVE";
+            btn.classList.remove('bg-primary-container', 'bg-error');
+            btn.classList.replace('text-white', 'text-black');
+        }, 2000);
+    };
+
+    // --- 3. BOUNDARY & COLLISION ENFORCEMENT ---
+    window.addEventListener('resize', matchTrackpadRatio);
+
+    function enforceBoundaries(obj) {
+        obj.setCoords();
+        let modified = false;
+
+        const minScaleX = MIN_REGION_SIZE / obj.width;
+        const minScaleY = MIN_REGION_SIZE / obj.height;
+        if (obj.scaleX < minScaleX) { obj.scaleX = minScaleX; modified = true; }
+        if (obj.scaleY < minScaleY) { obj.scaleY = minScaleY; modified = true; }
+
+        const boundingRect = obj.getBoundingRect();
+        if (boundingRect.width > canvas.width || boundingRect.height > canvas.height) {
+            const minScale = Math.min(canvas.width / (boundingRect.width / obj.scaleX), canvas.height / (boundingRect.height / obj.scaleY));
+            obj.scaleX = minScale; obj.scaleY = minScale; obj.setCoords();
+        }
+        const newRect = obj.getBoundingRect();
+        if (newRect.left < 0) { obj.left -= newRect.left; modified = true; }
+        if (newRect.top < 0) { obj.top -= newRect.top; modified = true; }
+        if (newRect.left + newRect.width > canvas.width) { obj.left -= (newRect.left + newRect.width - canvas.width); modified = true; }
+        if (newRect.top + newRect.height > canvas.height) { obj.top -= (newRect.top + newRect.height - canvas.height); modified = true; }
+        if (modified) obj.setCoords();
+
+        let isColliding = false;
+        const finalRect = obj.getBoundingRect();
+        
+        const myL = finalRect.left - MIN_SPACING;
+        const myR = finalRect.left + finalRect.width + MIN_SPACING;
+        const myT = finalRect.top - MIN_SPACING;
+        const myB = finalRect.top + finalRect.height + MIN_SPACING;
+
+        const allObjs = canvas.getObjects();
+        for (let i = 0; i < allObjs.length; i++) {
+            if (allObjs[i] === obj) continue;
+            const oRect = allObjs[i].getBoundingRect();
+            
+            if (myL < (oRect.left + oRect.width) && myR > oRect.left && myT < (oRect.top + oRect.height) && myB > oRect.top) {
+                isColliding = true;
+                break;
+            }
+        }
+
+        if (isColliding && obj._lastGoodState) {
+            obj.left = obj._lastGoodState.left; obj.top = obj._lastGoodState.top;
+            obj.scaleX = obj._lastGoodState.scaleX; obj.scaleY = obj._lastGoodState.scaleY;
+            obj.setCoords();
+        } else {
+            obj._lastGoodState = { left: obj.left, top: obj.top, scaleX: obj.scaleX, scaleY: obj.scaleY };
+        }
+    }
+
+    canvas.on('object:moving', (e) => enforceBoundaries(e.target));
+    canvas.on('object:scaling', (e) => enforceBoundaries(e.target));
+    canvas.on('object:modified', saveCurrentProfile);
+    canvas.on('mouse:down', (e) => {
+        if(e.target) e.target._lastGoodState = { left: e.target.left, top: e.target.top, scaleX: e.target.scaleX, scaleY: e.target.scaleY };
+    });
+
+    // --- 4. FLOATING UI (LABELS & CONTEXT MENU) ---
+    const ctxMenu = document.getElementById('shape-context-menu');
+
+    function applyThemeToShape(shape) {
+        const theme = PS_THEME[shape.ps_mapping] || PS_THEME['Unassigned'];
+        const fillCol = new fabric.Color(theme.color).setAlpha(0.15).toRgba();
+        shape.set({ stroke: theme.color, fill: fillCol, cornerStrokeColor: theme.color, borderColor: theme.color });
+        canvas.renderAll();
+    }
+
+    function updateFloatingUI() {
+        const container = document.getElementById('labels-container');
+        const objects = canvas.getObjects();
+        const activeObj = canvas.getActiveObject();
+        
+        objects.forEach(obj => {
+            let labelDiv = document.getElementById('label-' + obj.id);
+            if (!labelDiv) {
+                labelDiv = document.createElement('div'); labelDiv.id = 'label-' + obj.id;
+                labelDiv.className = 'absolute px-5 py-2.5 text-[24px] font-headline font-black shadow-2xl text-black rounded-lg pointer-events-none transform -translate-y-full transition-colors duration-300 flex items-center justify-center';
+                container.appendChild(labelDiv);
+            }
+            
+            const theme = PS_THEME[obj.ps_mapping];
+            
+            if (theme.type === 'shape') {
+                labelDiv.innerHTML = `<div class="${theme.val}"></div>`;
+            } else {
+                labelDiv.innerHTML = theme.val; 
+            }
+            
+            labelDiv.style.backgroundColor = theme.color;
+            const bound = obj.getBoundingRect();
+            labelDiv.style.left = `${bound.left + bound.width/2}px`; 
+            labelDiv.style.transform = `translate(-50%, -100%)`; 
+            labelDiv.style.top = `${Math.max(50, bound.top - 12)}px`; 
+        });
+        
+        Array.from(container.children).forEach(child => { if (!objects.find(o => child.id === 'label-' + o.id)) child.remove(); });
+
+        if (activeObj) {
+            ctxMenu.classList.remove('hidden');
+            const bound = activeObj.getBoundingRect();
+            const ctxMenuLeft = Math.min(bound.left + bound.width + 16, canvasContainer.clientWidth - ctxMenu.offsetWidth - 20);
+            ctxMenu.style.left = `${ctxMenuLeft}px`; ctxMenu.style.top = `${bound.top + (bound.height / 2) - (ctxMenu.offsetHeight / 2)}px`;
+        } else ctxMenu.classList.add('hidden');
+    }
+
+    canvas.on('after:render', updateFloatingUI);
+    canvas.on('selection:created', updateFloatingUI);
+    canvas.on('selection:updated', updateFloatingUI);
+    canvas.on('selection:cleared', updateFloatingUI);
+
+    document.getElementById('ctx-delete-btn').addEventListener('click', () => { if (canvas.getActiveObject()) deleteShape(canvas.getActiveObject().id); });
+    document.getElementById('ctx-edit-btn').addEventListener('click', () => {
+        const activeObj = canvas.getActiveObject();
+        if (activeObj) openModalForShape(activeObj);
+    });
+
+    // --- 5. MODAL LOGIC ---
+    const modalOverlay = document.getElementById('modal-overlay');
+    let selectedModalButton = 'X';
+
+    window.openModalForShape = function(shape) {
+        currentEditingShape = shape;
+        const usedMappings = getUsedMappings(shape.id);
+        let firstAvailable = null;
+
+        document.querySelectorAll('.controller-grid-btn').forEach(btn => {
+            const val = btn.getAttribute('data-value');
+            btn.classList.remove('active', 'opacity-20', 'grayscale', 'pointer-events-none');
+            if (usedMappings.includes(val)) {
+                btn.classList.add('opacity-20', 'grayscale', 'pointer-events-none');
+            } else {
+                if (!firstAvailable) firstAvailable = val;
+            }
+        });
+
+        let targetMapping = shape.ps_mapping;
+        if (targetMapping === 'Unassigned' || usedMappings.includes(targetMapping)) {
+            targetMapping = firstAvailable || 'X';
+        }
+        selectedModalButton = targetMapping;
+
+        document.querySelectorAll('.controller-grid-btn').forEach(btn => {
+            if (btn.getAttribute('data-value') === targetMapping) {
+                btn.classList.add('active');
+            }
+        });
+
+        modalOverlay.classList.remove('hidden');
+    };
+
+    document.querySelectorAll('.controller-grid-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.controller-grid-btn').forEach(b => b.classList.remove('active'));
+            e.currentTarget.classList.add('active'); selectedModalButton = e.currentTarget.getAttribute('data-value');
+        });
+    });
+
+    document.getElementById('modal-save-btn').addEventListener('click', () => {
+        if (currentEditingShape) { currentEditingShape.set('ps_mapping', selectedModalButton); applyThemeToShape(currentEditingShape); updateSidebar(); saveCurrentProfile(); }
+        modalOverlay.classList.add('hidden'); currentEditingShape = null; canvas.discardActiveObject(); canvas.renderAll();
+    });
+
+    document.getElementById('modal-cancel-btn').addEventListener('click', () => {
+        if (currentEditingShape && currentEditingShape.ps_mapping === 'Unassigned') canvas.remove(currentEditingShape);
+        updateSidebar(); modalOverlay.classList.add('hidden'); currentEditingShape = null;
+    });
+
+    // --- 6. SHAPE CREATION ---
+    function addShape(type) {
+        if (canvas.getObjects().length >= MAX_BUTTONS) { alert(`Maximum of ${MAX_BUTTONS} buttons allowed.`); return; }
+        
+        const objCount = canvas.getObjects().length;
+        const offset = objCount * 35; 
+        
+        const props = { left: (canvas.width / 2 - 80) + offset, top: (canvas.height / 2 - 50) + offset };
+        
+        let shape = type === 'rect' ? new fabric.Rect({ ...props, width: 120, height: 120 }) : new fabric.Circle({ ...props, radius: 60 });
+        shape.setControlsVisibility({ mtr: false, mt: true, mb: true, ml: true, mr: true, tl: true, tr: true, bl: true, br: true }); 
+        shape.set({ id: `Button_${shapeCounter++}`, shapeType: type, ps_mapping: 'Unassigned' });
+        shape._lastGoodState = { left: shape.left, top: shape.top, scaleX: 1, scaleY: 1 };
+        
+        applyThemeToShape(shape); canvas.add(shape); canvas.setActiveObject(shape); 
+        
+        openModalForShape(shape);
+        saveCurrentProfile();
+    }
+
+    document.getElementById('btn-rect').onclick = () => addShape('rect');
+    document.getElementById('btn-circle').onclick = () => addShape('circle');
+    document.getElementById('btn-clear').onclick = () => { canvas.clear(); shapeCounter = 1; updateSidebar(); ctxMenu.classList.add('hidden'); saveCurrentProfile(); };
+
+    // --- 7. SIDEBAR LOGIC ---
+    function getControlIcon(mapping, color) {
+        if (mapping === 'X') return `<span class="font-body font-bold text-2xl" style="color: ${color};">✕</span>`;
+        if (mapping === 'Circle') return `<div class="w-6 h-6 rounded-full border-[3px]" style="border-color: ${color};"></div>`;
+        if (mapping === 'Triangle') return `<div class="w-[20px] h-[18px] mb-0.5" style="clip-path: polygon(50% 0%, 0% 100%, 100% 100%); background: ${color};"></div>`;
+        if (mapping === 'Square') return `<div class="w-[18px] h-[18px] border-[3px]" style="border-color: ${color};"></div>`;
+        if (['L1', 'L2', 'R1', 'R2'].includes(mapping)) return `<span class="font-headline font-bold text-xl italic" style="color: ${color};">${mapping}</span>`;
+        return `<span class="font-body font-bold text-2xl" style="color: ${color};">?</span>`; 
+    }
+
+    function updateSidebar() {
+        const objects = canvas.getObjects();
+        document.getElementById('layer-count').innerText = `${objects.length}/${MAX_BUTTONS} Active`;
+        const list = document.getElementById('layer-list'); list.innerHTML = '';
+
+        objects.forEach((obj) => {
+            const currentMapping = obj.ps_mapping;
+            const theme = PS_THEME[currentMapping] || PS_THEME['Unassigned'];
+            
+            const usedMappings = getUsedMappings(obj.id);
+            
+            const optionsHtml = psButtons.map(btn => {
+                const labelText = PS_THEME[btn].val === '?' ? 'Unassigned' : btn;
+                const isSelected = currentMapping === btn ? 'selected' : '';
+                const isDisabled = (btn !== 'Unassigned' && usedMappings.includes(btn)) ? 'disabled' : '';
+                return `<option value="${btn}" ${isSelected} ${isDisabled}>${labelText}</option>`;
+            }).join('');
+
+            list.insertAdjacentHTML('beforeend', `
+            <div class="group relative bg-black border border-primary/10 rounded-lg flex items-center gap-4 p-4 transition-all hover:bg-primary/5 hover:border-primary/30" style="border-left: 5px solid ${theme.color}">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-[#0a0a0a] border border-white/5">
+                    ${getControlIcon(currentMapping, theme.color)}
+                </div>
+                <div class="flex-1">
+                    <h4 class="text-[16px] font-headline text-zinc-100 tracking-wider italic">${obj.id}</h4>
+                    <select class="ps-dropdown mt-2 w-full" onchange="updateMapping('${obj.id}', this.value)">${optionsHtml}</select>
+                </div>
+                <div class="flex flex-col items-center gap-1">
+                    <button onclick="deleteShape('${obj.id}')" class="p-2.5 hover:bg-error/10 rounded-lg transition-colors group/del"><span class="material-symbols-outlined text-[22px] text-zinc-600 group-hover/del:text-error">delete</span></button>
+                </div>
+            </div>`);
+        });
+    }
+
+    window.updateMapping = (id, value) => { const obj = canvas.getObjects().find(o => o.id === id); if(obj) { obj.set('ps_mapping', value); applyThemeToShape(obj); updateSidebar(); saveCurrentProfile(); } };
+    window.deleteShape = (id) => { const obj = canvas.getObjects().find(o => o.id === id); if(obj) { canvas.remove(obj); canvas.discardActiveObject(); updateSidebar(); ctxMenu.classList.add('hidden'); saveCurrentProfile(); } };
+
+    // =========================================================
+    // --- MULTI-TOUCH LERP ENGINE, TRAILS & FIXES -------------
+    // =========================================================
+    (function() {
+        const liveCanvas = document.getElementById('live-touch-canvas');
+        const liveCtx = liveCanvas.getContext('2d');
+        const statusBadge = document.getElementById('connection-status');
+        
+        const ws = new WebSocket("ws://192.168.1.157:8765");
+        
+        let targetTouches = {};  
+        let currentTouches = {}; 
+        let swipeStates = {}; 
+
+        ws.onopen = () => {
+            statusBadge.innerText = "Online";
+            statusBadge.className = "text-[12px] font-headline font-bold text-primary bg-primary/10 border border-primary/20 px-3 py-1 rounded tracking-widest uppercase";
+        };
+        
+        ws.onerror = () => statusBadge.innerText = "Error";
+
+        ws.onmessage = (event) => {
+            const incoming = JSON.parse(event.data);
+            const incomingIds = [];
+            
+            let activeFingersBefore = Object.keys(currentTouches).length;
+            
+            incoming.forEach(t => {
+                incomingIds.push(t.id.toString());
+
+                if (t.x < hwMinX) { hwMinX = t.x; matchTrackpadRatio(); }
+                if (t.x > hwMaxX) { hwMaxX = t.x; matchTrackpadRatio(); }
+                if (t.y < hwMinY) { hwMinY = t.y; matchTrackpadRatio(); }
+                if (t.y > hwMaxY) { hwMaxY = t.y; matchTrackpadRatio(); }
+
+                if (!currentTouches[t.id]) {
+                    currentTouches[t.id] = { x: t.x, y: t.y };
+                    
+                    const hwWidth = Math.abs(hwMaxX - hwMinX);
+                    const hwHeight = Math.abs(hwMaxY - hwMinY);
+                    let tapX = ((t.x - hwMinX) / hwWidth) * liveCanvas.width;
+                    let tapY = ((t.y - hwMinY) / hwHeight) * liveCanvas.height;
+
+                    let hitRegion = null;
+                    const objs = canvas.getObjects();
+                    for(let i = objs.length - 1; i >= 0; i--) {
+                        let rect = objs[i].getBoundingRect();
+                        if (tapX >= rect.left && tapX <= rect.left + rect.width && tapY >= rect.top && tapY <= rect.top + rect.height) {
+                            hitRegion = objs[i]; break; 
+                        }
+                    }
+
+                    let activeObj = canvas.getActiveObject();
+                    
+                    if (hitRegion) {
+                        if (activeObj === hitRegion) {
+                            let now = Date.now();
+                            if (activeFingersBefore === 0 && now - (hitRegion._lastTapTime || 0) < 300) {
+                                canvas.discardActiveObject();
+                                activeObj = null; 
+                                hitRegion._lastTapTime = 0;
+                            } else {
+                                hitRegion._lastTapTime = now;
+                            }
+                        } else {
+                            canvas.setActiveObject(hitRegion);
+                            activeObj = hitRegion; 
+                            hitRegion._lastTapTime = Date.now();
+                        }
+                        canvas.renderAll();
+                    }
+
+                    let grabX = 1; let grabY = 1; 
+                    if (activeObj) {
+                        let rect = activeObj.getBoundingRect();
+                        let centerX = rect.left + rect.width / 2;
+                        let centerY = rect.top + rect.height / 2;
+                        grabX = tapX > centerX ? 1 : -1; 
+                        grabY = tapY > centerY ? 1 : -1; 
+                    }
+
+                    swipeStates[t.id] = { 
+                        lastX: t.x, lastY: t.y,
+                        grabX: grabX, grabY: grabY,
+                        trailHistory: [],
+                        startedInActiveObj: hitRegion === activeObj && activeObj !== null
+                    };
+                }
+                targetTouches[t.id] = { x: t.x, y: t.y };
+            });
+
+            Object.keys(currentTouches).forEach(id => {
+                if (!incomingIds.includes(id)) {
+                    delete currentTouches[id];
+                    delete targetTouches[id];
+                    delete swipeStates[id];
+                }
+            });
+        };
+
+        function animateTouches() {
+            liveCtx.clearRect(0, 0, liveCanvas.width, liveCanvas.height);
+            const hwWidth = Math.abs(hwMaxX - hwMinX) || 1;
+            const hwHeight = Math.abs(hwMaxY - hwMinY) || 1;
+            
+            let needsRender = false;
+            let activeObj = canvas.getActiveObject();
+            let totalFingers = Object.keys(currentTouches).length;
+
+            Object.keys(currentTouches).forEach(id => {
+                const current = currentTouches[id];
+                const target = targetTouches[id];
+                let state = swipeStates[id];
+                
+                current.x += (target.x - current.x) * 0.55;
+                current.y += (target.y - current.y) * 0.55;
+
+                let screenX = ((current.x - hwMinX) / hwWidth) * liveCanvas.width;
+                let screenY = ((current.y - hwMinY) / hwHeight) * liveCanvas.height;
+
+                if (state) {
+                    state.trailHistory.push({ x: screenX, y: screenY });
+                    if (state.trailHistory.length > 20) state.trailHistory.shift();
+
+                    let frameDx = current.x - state.lastX;
+                    let frameDy = current.y - state.lastY;
+
+                    if (activeObj) {
+                        if (totalFingers === 1) {
+                            if (state.startedInActiveObj) {
+                                let cDx = (frameDx / hwWidth) * canvas.width;
+                                let cDy = (frameDy / hwHeight) * canvas.height;
+                                activeObj.left += cDx;
+                                activeObj.top += cDy;
+                                activeObj.setCoords();
+                                enforceBoundaries(activeObj);
+                                needsRender = true;
+                            }
+                        } 
+                        else if (totalFingers >= 2) {
+                            let moveX = (frameDx / hwWidth) * canvas.width;
+                            let moveY = (frameDy / hwHeight) * canvas.height;
+
+                            let oldPw = activeObj.width * activeObj.scaleX;
+                            let oldPh = activeObj.height * activeObj.scaleY;
+
+                            let newPw = oldPw;
+                            let newPh = oldPh;
+                            let newLeft = activeObj.left;
+                            let newTop = activeObj.top;
+
+                            if (state.grabX === 1) { 
+                                newPw += moveX; 
+                            } else { 
+                                newPw -= moveX; 
+                                newLeft += moveX; 
+                            }
+
+                            if (state.grabY === 1) { 
+                                newPh += moveY; 
+                            } else { 
+                                newPh -= moveY; 
+                                newTop += moveY; 
+                            }
+
+                            if (newPw < MIN_REGION_SIZE) {
+                                if (state.grabX === -1) newLeft -= (MIN_REGION_SIZE - newPw); 
+                                newPw = MIN_REGION_SIZE;
+                            }
+                            if (newPh < MIN_REGION_SIZE) {
+                                if (state.grabY === -1) newTop -= (MIN_REGION_SIZE - newPh);
+                                newPh = MIN_REGION_SIZE;
+                            }
+
+                            activeObj.scaleX = newPw / activeObj.width;
+                            activeObj.scaleY = newPh / activeObj.height;
+                            activeObj.left = newLeft;
+                            activeObj.top = newTop;
+                            
+                            activeObj.setCoords();
+                            enforceBoundaries(activeObj);
+                            needsRender = true;
+                        }
+                    }
+                    state.lastX = current.x;
+                    state.lastY = current.y;
+                }
+
+                if (state && state.trailHistory.length > 1) {
+                    liveCtx.beginPath();
+                    for (let i = 0; i < state.trailHistory.length; i++) {
+                        let pt = state.trailHistory[i];
+                        if (i === 0) liveCtx.moveTo(pt.x, pt.y);
+                        else liveCtx.lineTo(pt.x, pt.y);
+                    }
+                    liveCtx.strokeStyle = "rgba(74, 222, 128, 0.2)";
+                    liveCtx.lineWidth = 15;
+                    liveCtx.lineCap = "round";
+                    liveCtx.lineJoin = "round";
+                    liveCtx.stroke();
+                }
+
+                liveCtx.shadowBlur = 20;
+                liveCtx.shadowColor = "rgba(74, 222, 128, 1)"; 
+                liveCtx.beginPath();
+                liveCtx.arc(screenX, screenY, 15, 0, 2 * Math.PI);
+                liveCtx.fillStyle = "rgba(74, 222, 128, 0.7)"; 
+                liveCtx.fill();
+                
+                liveCtx.shadowBlur = 0; 
+                liveCtx.strokeStyle = "#ffffff";
+                liveCtx.lineWidth = 2;
+                liveCtx.stroke();
+            });
+
+            if (needsRender) canvas.renderAll(); 
+
+            requestAnimationFrame(animateTouches);
+        }
+        
+        animateTouches(); 
+    })();
+</script>
+</body>
+</html>
